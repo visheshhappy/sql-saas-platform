@@ -214,4 +214,3 @@ docker-compose up -d postgres
 |--------|----------|-------------|
 | POST | `/v1/query` | Execute SQL query |
 | GET | `/health` | Health check |
-| GET | `/h2-console` | H2 database console |
