@@ -1,0 +1,10 @@
+rootProject.name = 'sql-saas-platform'
+
+include 'connector'
+include 'server'
+include 'sqlparser'
+include 'core'
+include 'persistence'
+include 'entitlement'
+include 'query-orchestrator'
+

@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.thp.sqlsaas'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':core')
+    implementation "com.github.jsqlparser:jsqlparser:5.3"
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}

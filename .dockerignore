@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+
+# Build outputs
+**/build/
+**/out/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# Gradle
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Logs
+logs/
+*.log
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+*.md
+!README.md
+
+# Test resources
+**/test/
+**/*Test.java
+**/*Tests.java
+
+# Other
+*.patch
+*.sh
+*.ps1
+*.bat

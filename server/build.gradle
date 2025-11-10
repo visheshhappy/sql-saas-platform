@@ -1,0 +1,19 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    implementation project(':connector')
+    implementation project(':sqlparser')
+    implementation project(':persistence')
+    implementation project(':entitlement')
+    implementation project(':core')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    
+    // Redis (optional, for caching)
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    
+    // Kafka (optional, for messaging)
+    implementation 'org.springframework.kafka:spring-kafka'
+}
