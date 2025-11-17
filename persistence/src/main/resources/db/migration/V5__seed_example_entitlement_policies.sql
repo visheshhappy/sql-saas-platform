@@ -2,15 +2,17 @@
 -- These demonstrate RLS, CLS, MASK, and TABLE_ACCESS policies
 
 -- First, ensure we have a demo tenant
-MERGE INTO tenants (tenant_id, name, created_at, updated_at)
-KEY(tenant_id)
-VALUES ('demo-tenant', 'Demo Tenant Organization', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO tenants (tenant_id, name, created_at, updated_at)
+VALUES ('demo-tenant', 'Demo Tenant Organization', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+ON CONFLICT (tenant_id) DO UPDATE SET
+    name = EXCLUDED.name,
+    updated_at = EXCLUDED.updated_at;
 
 -- Policy 1: RLS - Users can only see their own assigned GitHub issues
-MERGE INTO entitlement_policies (
+INSERT INTO entitlement_policies (
     tenant_id, policy_id, policy_name, policy_type,
     source_pattern, table_pattern, condition, action, policy_config, priority
-) KEY(policy_id) VALUES (
+) VALUES (
     'demo-tenant',
     'rls-github-own-issues',
     'Users see only their assigned GitHub issues',
@@ -21,13 +23,24 @@ MERGE INTO entitlement_policies (
     'FILTER',
     '{"filter_type": "row", "column": "assignee", "operator": "=", "value": "$${user.id}"}',
     10
-);
+)
+ON CONFLICT (policy_id) DO UPDATE SET
+    tenant_id = EXCLUDED.tenant_id,
+    policy_name = EXCLUDED.policy_name,
+    policy_type = EXCLUDED.policy_type,
+    source_pattern = EXCLUDED.source_pattern,
+    table_pattern = EXCLUDED.table_pattern,
+    condition = EXCLUDED.condition,
+    action = EXCLUDED.action,
+    policy_config = EXCLUDED.policy_config,
+    priority = EXCLUDED.priority,
+    updated_at = CURRENT_TIMESTAMP;
 
 -- Policy 2: RLS - Users can only see Jira issues from their allowed projects
-MERGE INTO entitlement_policies (
+INSERT INTO entitlement_policies (
     tenant_id, policy_id, policy_name, policy_type,
     source_pattern, table_pattern, condition, action, policy_config, priority
-) KEY(policy_id) VALUES (
+) VALUES (
     'demo-tenant',
     'rls-jira-project-access',
     'Users see only issues from their allowed projects',
@@ -38,13 +51,24 @@ MERGE INTO entitlement_policies (
     'FILTER',
     '{"filter_type": "row", "column": "project", "operator": "IN", "value": "$${user.allowed_projects}"}',
     10
-);
+)
+ON CONFLICT (policy_id) DO UPDATE SET
+    tenant_id = EXCLUDED.tenant_id,
+    policy_name = EXCLUDED.policy_name,
+    policy_type = EXCLUDED.policy_type,
+    source_pattern = EXCLUDED.source_pattern,
+    table_pattern = EXCLUDED.table_pattern,
+    condition = EXCLUDED.condition,
+    action = EXCLUDED.action,
+    policy_config = EXCLUDED.policy_config,
+    priority = EXCLUDED.priority,
+    updated_at = CURRENT_TIMESTAMP;
 
 -- Policy 3: RLS - Draft PRs only visible to their authors
-MERGE INTO entitlement_policies (
+INSERT INTO entitlement_policies (
     tenant_id, policy_id, policy_name, policy_type,
     source_pattern, table_pattern, condition, action, policy_config, priority
-) KEY(policy_id) VALUES (
+) VALUES (
     'demo-tenant',
     'rls-github-draft-prs',
     'Draft PRs only visible to author',
@@ -58,13 +82,24 @@ MERGE INTO entitlement_policies (
         {"column": "author", "operator": "=", "value": "$${user.id}"}
     ]}',
     10
-);
+)
+ON CONFLICT (policy_id) DO UPDATE SET
+    tenant_id = EXCLUDED.tenant_id,
+    policy_name = EXCLUDED.policy_name,
+    policy_type = EXCLUDED.policy_type,
+    source_pattern = EXCLUDED.source_pattern,
+    table_pattern = EXCLUDED.table_pattern,
+    condition = EXCLUDED.condition,
+    action = EXCLUDED.action,
+    policy_config = EXCLUDED.policy_config,
+    priority = EXCLUDED.priority,
+    updated_at = CURRENT_TIMESTAMP;
 
 -- Policy 4: CLS - Hide email from Jira users for non-HR
-MERGE INTO entitlement_policies (
+INSERT INTO entitlement_policies (
     tenant_id, policy_id, policy_name, policy_type,
     source_pattern, table_pattern, condition, action, policy_config, priority
-) KEY(policy_id) VALUES (
+) VALUES (
     'demo-tenant',
     'cls-jira-hide-email',
     'Hide email from non-HR users',
@@ -75,13 +110,24 @@ MERGE INTO entitlement_policies (
     'DENY',
     '{"denied_columns": ["email"]}',
     10
-);
+)
+ON CONFLICT (policy_id) DO UPDATE SET
+    tenant_id = EXCLUDED.tenant_id,
+    policy_name = EXCLUDED.policy_name,
+    policy_type = EXCLUDED.policy_type,
+    source_pattern = EXCLUDED.source_pattern,
+    table_pattern = EXCLUDED.table_pattern,
+    condition = EXCLUDED.condition,
+    action = EXCLUDED.action,
+    policy_config = EXCLUDED.policy_config,
+    priority = EXCLUDED.priority,
+    updated_at = CURRENT_TIMESTAMP;
 
 -- Policy 5: MASK - Mask sensitive columns for external users
-MERGE INTO entitlement_policies (
+INSERT INTO entitlement_policies (
     tenant_id, policy_id, policy_name, policy_type,
     source_pattern, table_pattern, condition, action, policy_config, priority
-) KEY(policy_id) VALUES (
+) VALUES (
     'demo-tenant',
     'mask-github-private-repos',
     'Mask private repository names for external users',
@@ -93,13 +139,24 @@ MERGE INTO entitlement_policies (
     '{"column": "full_name", "mask_type": "PARTIAL",
       "condition_column": "private", "condition_value": true}',
     10
-);
+)
+ON CONFLICT (policy_id) DO UPDATE SET
+    tenant_id = EXCLUDED.tenant_id,
+    policy_name = EXCLUDED.policy_name,
+    policy_type = EXCLUDED.policy_type,
+    source_pattern = EXCLUDED.source_pattern,
+    table_pattern = EXCLUDED.table_pattern,
+    condition = EXCLUDED.condition,
+    action = EXCLUDED.action,
+    policy_config = EXCLUDED.policy_config,
+    priority = EXCLUDED.priority,
+    updated_at = CURRENT_TIMESTAMP;
 
 -- Policy 6: TABLE_ACCESS - Deny access to audit logs
-MERGE INTO entitlement_policies (
+INSERT INTO entitlement_policies (
     tenant_id, policy_id, policy_name, policy_type,
     source_pattern, table_pattern, condition, action, policy_config, priority
-) KEY(policy_id) VALUES (
+) VALUES (
     'demo-tenant',
     'deny-audit-logs',
     'Restrict audit log access to security admins',
@@ -110,13 +167,24 @@ MERGE INTO entitlement_policies (
     'DENY',
     '{}',
     100
-);
+)
+ON CONFLICT (policy_id) DO UPDATE SET
+    tenant_id = EXCLUDED.tenant_id,
+    policy_name = EXCLUDED.policy_name,
+    policy_type = EXCLUDED.policy_type,
+    source_pattern = EXCLUDED.source_pattern,
+    table_pattern = EXCLUDED.table_pattern,
+    condition = EXCLUDED.condition,
+    action = EXCLUDED.action,
+    policy_config = EXCLUDED.policy_config,
+    priority = EXCLUDED.priority,
+    updated_at = CURRENT_TIMESTAMP;
 
 -- Policy 7: High Priority - Admins see everything
-MERGE INTO entitlement_policies (
+INSERT INTO entitlement_policies (
     tenant_id, policy_id, policy_name, policy_type,
     source_pattern, table_pattern, condition, action, policy_config, priority
-) KEY(policy_id) VALUES (
+) VALUES (
     'demo-tenant',
     'admin-all-access',
     'Admins see all data',
@@ -127,13 +195,24 @@ MERGE INTO entitlement_policies (
     'ALLOW',
     '{}',
     1000
-);
+)
+ON CONFLICT (policy_id) DO UPDATE SET
+    tenant_id = EXCLUDED.tenant_id,
+    policy_name = EXCLUDED.policy_name,
+    policy_type = EXCLUDED.policy_type,
+    source_pattern = EXCLUDED.source_pattern,
+    table_pattern = EXCLUDED.table_pattern,
+    condition = EXCLUDED.condition,
+    action = EXCLUDED.action,
+    policy_config = EXCLUDED.policy_config,
+    priority = EXCLUDED.priority,
+    updated_at = CURRENT_TIMESTAMP;
 
 -- Policy 8: RLS - Region-based access for Jira
-MERGE INTO entitlement_policies (
+INSERT INTO entitlement_policies (
     tenant_id, policy_id, policy_name, policy_type,
     source_pattern, table_pattern, condition, action, policy_config, priority
-) KEY(policy_id) VALUES (
+) VALUES (
     'demo-tenant',
     'rls-jira-region',
     'Users see only issues from their region',
@@ -145,4 +224,15 @@ MERGE INTO entitlement_policies (
     '{"filter_type": "row", "column": "project", "operator": "IN",
       "value": "$${user.regional_projects}"}',
     20
-);
+)
+ON CONFLICT (policy_id) DO UPDATE SET
+    tenant_id = EXCLUDED.tenant_id,
+    policy_name = EXCLUDED.policy_name,
+    policy_type = EXCLUDED.policy_type,
+    source_pattern = EXCLUDED.source_pattern,
+    table_pattern = EXCLUDED.table_pattern,
+    condition = EXCLUDED.condition,
+    action = EXCLUDED.action,
+    policy_config = EXCLUDED.policy_config,
+    priority = EXCLUDED.priority,
+    updated_at = CURRENT_TIMESTAMP;

@@ -1,14 +1,14 @@
 -- Create databases table to track tenant databases
 CREATE TABLE tenant_databases (
     id BIGSERIAL PRIMARY KEY,
-    tenant_id VARCHAR NOT NULL,
+    tenant_id VARCHAR(100) NOT NULL,
     database_name VARCHAR(255) NOT NULL,
     database_type VARCHAR(50) NOT NULL,
     connection_url VARCHAR(500),
     status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
-    CONSTRAINT fk_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    CONSTRAINT fk_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id) ON DELETE CASCADE,
     CONSTRAINT uk_tenant_database UNIQUE (tenant_id, database_name)
 );
 

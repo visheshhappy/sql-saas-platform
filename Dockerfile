@@ -13,6 +13,7 @@ COPY core core/
 COPY connector connector/
 COPY sqlparser sqlparser/
 COPY persistence persistence/
+COPY entitlement entitlement/
 COPY server server/
 COPY src src/
 

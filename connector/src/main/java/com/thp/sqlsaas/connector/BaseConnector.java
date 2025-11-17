@@ -197,7 +197,8 @@ public abstract class BaseConnector implements Connector {
             List<Map<String, Object>> rows,
             List<String> columns) {
         
-        if (columns == null || columns.isEmpty()) {
+        // If columns is null, empty, or contains wildcard, return all columns
+        if (columns == null || columns.isEmpty() || columns.contains("*")) {
             return rows;
         }
         
