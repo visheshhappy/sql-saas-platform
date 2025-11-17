@@ -103,6 +103,7 @@ public class QueryService {
             
             // Step 5: Build query plan
             QueryPlan plan = buildQueryPlan(
+                sql,
                 tenantId,
                 userId,
                 userRoles,
@@ -138,6 +139,7 @@ public class QueryService {
      * Build a query plan from parsed query components.
      */
     private QueryPlan buildQueryPlan(
+            String sqlQuery,
             String tenantId,
             String userId,
             Set<String> userRoles,
@@ -162,6 +164,7 @@ public class QueryService {
             userRoles,
             connectorType,
             connectorConfig,
+            sqlQuery,
             resource,
             columns,
             predicates,

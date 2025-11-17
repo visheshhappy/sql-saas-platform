@@ -69,7 +69,7 @@ public class QueryOrchestrator {
                 traceId,
                 plan.getTenantId(),
                 plan.getUserId(),
-                null, // SQL query - could be added to plan
+                plan.getSqlQuery(), // Use SQL from plan
                 plan.getConnectorType().name(),
                 plan.getResource()
             );

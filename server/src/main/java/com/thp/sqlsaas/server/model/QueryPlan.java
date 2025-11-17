@@ -21,6 +21,7 @@ public class QueryPlan {
     private Map<String, String> connectorConfig;
     
     // Query details
+    private String sqlQuery;  // Original SQL query
     private String resource;  // e.g., "issues", "pulls"
     private List<String> requestedColumns;
     private List<Connector.Predicate> predicates;
@@ -35,7 +36,7 @@ public class QueryPlan {
     
     public QueryPlan(String tenantId, String userId, Set<String> userRoles,
                      ConnectorType connectorType, Map<String, String> connectorConfig,
-                     String resource, List<String> requestedColumns,
+                     String sqlQuery, String resource, List<String> requestedColumns,
                      List<Connector.Predicate> predicates, Integer limit,
                      Long maxStalenessMs, String traceId) {
         this.tenantId = tenantId;
@@ -43,6 +44,7 @@ public class QueryPlan {
         this.userRoles = userRoles;
         this.connectorType = connectorType;
         this.connectorConfig = connectorConfig;
+        this.sqlQuery = sqlQuery;
         this.resource = resource;
         this.requestedColumns = requestedColumns;
         this.predicates = predicates;
@@ -98,6 +100,14 @@ public class QueryPlan {
     
     public void setResource(String resource) {
         this.resource = resource;
+    }
+    
+    public String getSqlQuery() {
+        return sqlQuery;
+    }
+    
+    public void setSqlQuery(String sqlQuery) {
+        this.sqlQuery = sqlQuery;
     }
     
     public List<String> getRequestedColumns() {
