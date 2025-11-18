@@ -214,3 +214,29 @@ docker-compose up -d postgres
 |--------|----------|-------------|
 | POST | `/v1/query` | Execute SQL query |
 | GET | `/health` | Health check |
+
+
+
+Sample Run
+
+```
+curl -X POST http://localhost:9090/v1/query \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sql": "SELECT * FROM github_issues WHERE state = '\''open'\''",
+    "tenantId": "demo-tenant",
+    "userId": "john_doe",
+    "maxStalenessMs": 60000
+  }'
+```
+
+```
+curl -X POST http://localhost:9090/v1/query \
+-H "Content-Type: application/json" \
+-d '{
+"sql": "SELECT * FROM github_issues WHERE state = '\''open'\'' AND assignee = '\''john_doe'\''",
+"tenantId": "demo-tenant",
+"userId": "john_doe",
+"maxStalenessMs": 60000
+}'
+```
