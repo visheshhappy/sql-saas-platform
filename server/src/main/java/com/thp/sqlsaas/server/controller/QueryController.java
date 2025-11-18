@@ -51,7 +51,6 @@ public class QueryController {
                 request.sql(),
                 request.tenantId(),
                 request.userId(),
-                request.userRoles() != null ? request.userRoles() : Set.of("user"),
                 request.maxStalenessMs() != null ? request.maxStalenessMs() : 60000L
             );
             
@@ -98,7 +97,6 @@ public class QueryController {
         String sql,
         String tenantId,
         String userId,
-        Set<String> userRoles,
         Long maxStalenessMs
     ) {}
 }

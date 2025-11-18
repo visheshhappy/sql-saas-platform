@@ -32,6 +32,7 @@ public class QueryService {
     
     private final QueryOrchestrator queryOrchestrator;
     private final CacheService cacheService;
+    private final com.thp.sqlsaas.persistence.service.UserService userService;
     
     // Table to connector type mapping
     private final Map<String, ConnectorType> tableToConnectorMapping = Map.of(
@@ -41,31 +42,45 @@ public class QueryService {
         "jira_projects", ConnectorType.JIRA
     );
     
-    public QueryService(QueryOrchestrator queryOrchestrator, CacheService cacheService) {
+    public QueryService(QueryOrchestrator queryOrchestrator, CacheService cacheService, 
+                        com.thp.sqlsaas.persistence.service.UserService userService) {
         this.queryOrchestrator = queryOrchestrator;
         this.cacheService = cacheService;
+        this.userService = userService;
     }
     
     /**
      * Execute SQL query.
      * Steps:
-     * 1. Check cache
-     * 2. If cache miss, parse SQL to extract table, columns, filters
-     * 3. Build query plan
-     * 4. Execute via orchestrator
-     * 5. Cache the result
+     * 2. Check cache
+     * 3. If cache miss, parse SQL to extract table, columns, filters
+     * 4. Build query plan
+     * 5. Execute via orchestrator
+     * 6. Cache the result
      */
     public QueryExecutionResult executeQuery(
             String sql,
             String tenantId,
             String userId,
-            Set<String> userRoles,
             Long maxStalenessMs) {
         
         logger.info("Executing SQL query for tenant: {}, user: {}", tenantId, userId);
         logger.debug("SQL: {}", sql);
         
         try {
+            Set<String> actualUserRoles;
+            try {
+                actualUserRoles = userService.getUserRoles(userId, tenantId);
+                logger.info("User {} has roles: {} (from database)", userId, actualUserRoles);
+            } catch (SecurityException e) {
+                logger.error("Security error: User {} not found in tenant {}", userId, tenantId);
+                return QueryExecutionResult.error(
+                    "AUTHENTICATION_FAILED",
+                    "User not found or not authorized for this tenant",
+                    0L
+                );
+            }
+            
             // Step 1: Check cache
             String cacheKey = CacheService.generateCacheKey(tenantId, userId, sql);
             QueryExecutionResult cachedResult = cacheService.get(cacheKey, maxStalenessMs);
@@ -80,7 +95,7 @@ public class QueryService {
             // Step 2: Parse SQL
             SqlQueryRequest sqlRequest = SqlToModelConverter.parseAndConvert(sql);
             
-            // Step 2: Determine connector type from table name
+            // Step 3: Determine connector type from table name
             String tableName = sqlRequest.getTableName();
             ConnectorType connectorType = tableToConnectorMapping.get(tableName.toLowerCase());
             
@@ -93,20 +108,20 @@ public class QueryService {
                 );
             }
             
-            // Step 3: Map table to resource
+            // Step 4: Map table to resource
             String resource = mapTableToResource(tableName);
             
-            // Step 4: Convert filters to predicates
+            // Step 5: Convert filters to predicates
             List<Connector.Predicate> predicates = convertFiltersToPredicates(
                 sqlRequest.getFilters()
             );
             
-            // Step 5: Build query plan
+            // Step 6: Build query plan (using REAL roles from database)
             QueryPlan plan = buildQueryPlan(
                 sql,
                 tenantId,
                 userId,
-                userRoles,
+                actualUserRoles,  // ← Use roles from database!
                 connectorType,
                 resource,
                 List.of("*"), // For now, select all columns
@@ -115,10 +130,10 @@ public class QueryService {
                 maxStalenessMs
             );
             
-            // Step 6: Execute via orchestrator
+            // Step 7: Execute via orchestrator
             QueryExecutionResult result = queryOrchestrator.execute(plan);
             
-            // Step 7: Cache successful results
+            // Step 8: Cache successful results
             if ("SUCCESS".equals(result.getStatus())) {
                 cacheService.put(cacheKey, result);
             }

@@ -24,7 +24,7 @@ public class RateLimitService {
     
     // Configuration per connector type
     private final Map<ConnectorType, RateLimitConfig> configs = Map.of(
-        ConnectorType.GITHUB, new RateLimitConfig(100, 60), // 100 requests per 60 seconds
+        ConnectorType.GITHUB, new RateLimitConfig(1, 1), // 100 requests per 60 seconds
         ConnectorType.JIRA, new RateLimitConfig(100, 60)     // 100 requests per 60 seconds
     );
     

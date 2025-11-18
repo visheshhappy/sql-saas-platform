@@ -15,7 +15,6 @@ COPY sqlparser sqlparser/
 COPY persistence persistence/
 COPY entitlement entitlement/
 COPY server server/
-COPY src src/
 
 # Build the application (skip tests for faster builds)
 # Use gradle command directly since gradlew doesn't exist
